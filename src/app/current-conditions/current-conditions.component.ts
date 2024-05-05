@@ -1,8 +1,11 @@
-import {Component, effect, inject, Signal} from '@angular/core';
+import {Component, inject, OnDestroy, Signal} from '@angular/core';
 import {WeatherService} from "../weather.service";
 import {LocationService} from "../location.service";
 import {Router} from "@angular/router";
 import {ConditionsAndZip} from '../conditions-and-zip.type';
+import {combineLatest, merge, Observable, of, Subject} from 'rxjs';
+import {switchMap, takeUntil} from 'rxjs/operators';
+import { CurrentConditions } from './current-conditions.type';
 
 
 @Component({
@@ -10,8 +13,9 @@ import {ConditionsAndZip} from '../conditions-and-zip.type';
   templateUrl: './current-conditions.component.html',
   styleUrls: ['./current-conditions.component.css']
 })
-export class CurrentConditionsComponent {
+export class CurrentConditionsComponent implements OnDestroy {
 
+  private _destroy$$: Subject<void> = new Subject<void>();
   private weatherService = inject(WeatherService);
   private router = inject(Router);
   protected locationService = inject(LocationService);
@@ -19,30 +23,36 @@ export class CurrentConditionsComponent {
 
   public constructor() {
     if (!this.currentConditionsByZip().length) {
-      this.locationService.locations.forEach(location => this.weatherService.addCurrentConditions(location));
+      const requests: Observable<CurrentConditions>[] = this.locationService.locations.map(location => this.weatherService.addCurrentConditions$(location));
+      
+      merge(...requests).subscribe();
     }
 
-    effect(() => {
-      const addedLocation: string = this.locationService.addedLocationSignal();
+    this.locationService.addedLocation$.pipe(
+      switchMap((location) => combineLatest(
+        [of(location), this.weatherService.addCurrentConditions$(location)]
+      )),
+      // Unsubscribe when the component is destroyed to prevent memory leaks and  artifacts
+      takeUntil(this._destroy$$)
+    ).subscribe(([location,conditions]: [string, CurrentConditions]) => {
 
-      if (addedLocation) {
-        this.weatherService.addCurrentConditions(addedLocation);
-        this.locationService.resetAddedLocations()
+      if (conditions) {
+         this.locationService.addToStorage(location);
       }
-    }, {
-      allowSignalWrites: true
+
+      if (!conditions) {
+        alert(`Could not get weather data for zipcode ${location}`);
+      }
     });
 
-    effect(() => {
-      const removedLocation: string = this.locationService.removedLocationSignal();
-
-      if (removedLocation) {
-        this.weatherService.removeCurrentConditions(removedLocation);
-        this.locationService.resetRemovedLocations();
-      }
-    }, {
-      allowSignalWrites: true
+    this.locationService.removedLocation$.subscribe((location) => {
+      this.weatherService.removeCurrentConditions(location);
     })
+  }
+
+  public ngOnDestroy(): void {
+    this._destroy$$.next();
+    this._destroy$$.complete();
   }
 
   showForecast(zipcode : string){

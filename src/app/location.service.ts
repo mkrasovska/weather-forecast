@@ -1,11 +1,15 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 
 export const LOCATIONS : string = "locations";
 
 @Injectable()
 export class LocationService {
-  addedLocationSignal = signal<string>('');
-  removedLocationSignal = signal<string>('');
+
+  private addedLocation$$: Subject <string> = new Subject<string>();
+  private removedLocation$$: Subject <string> = new Subject<string>();
+  addedLocation$ = this.addedLocation$$.asObservable();
+  removedLocation$ = this.removedLocation$$.asObservable();
   locations : string[] = [];
 
   constructor() {
@@ -17,9 +21,7 @@ export class LocationService {
   }
 
   addLocation(zipcode : string) {
-    this.locations.push(zipcode);
-    localStorage.setItem(LOCATIONS, JSON.stringify(this.locations));
-    this.addedLocationSignal.set(zipcode);
+    this.addedLocation$$.next(zipcode);
   }
 
   removeLocation(zipcode : string) {
@@ -27,15 +29,12 @@ export class LocationService {
     if (index !== -1){
       this.locations.splice(index, 1);
       localStorage.setItem(LOCATIONS, JSON.stringify(this.locations));
-      this.removedLocationSignal.set(zipcode);
+      this.removedLocation$$.next(zipcode);
     }
   }
-
-  resetAddedLocations(): void {
-    this.addedLocationSignal.set(null);
-  }
-
-  resetRemovedLocations(): void {
-    this.removedLocationSignal.set(null);
+  
+  addToStorage(zipcode : string): void {
+    this.locations.push(zipcode);
+    localStorage.setItem(LOCATIONS, JSON.stringify(this.locations));
   }
 }

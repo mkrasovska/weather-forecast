@@ -1,5 +1,6 @@
 import {Injectable, Signal, signal} from '@angular/core';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
+import {catchError, tap} from 'rxjs/operators';
 
 import {HttpClient} from '@angular/common/http';
 import {CurrentConditions} from './current-conditions/current-conditions.type';
@@ -16,10 +17,12 @@ export class WeatherService {
 
   constructor(private http: HttpClient) { }
 
-  addCurrentConditions(zipcode: string): void {
+  addCurrentConditions$(zipcode: string): Observable<CurrentConditions> {
     // Here we make a request to get the current conditions data from the API. Note the use of backticks and an expression to insert the zipcode
-    this.http.get<CurrentConditions>(`${WeatherService.URL}/weather?zip=${zipcode},us&units=imperial&APPID=${WeatherService.APPID}`)
-      .subscribe(data => this.currentConditions.update(conditions => [...conditions, {zip: zipcode, data}]));
+    return this.http.get<CurrentConditions>(`${WeatherService.URL}/weather?zip=${zipcode},us&units=imperial&APPID=${WeatherService.APPID}`).pipe(
+      tap(data => this.currentConditions.update(conditions => [...conditions, {zip: zipcode, data}])),
+      catchError(() => of(null))
+    )
   }
 
   removeCurrentConditions(zipcode: string) {
