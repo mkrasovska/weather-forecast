@@ -24,10 +24,12 @@ export class WeatherService {
 
   removeCurrentConditions(zipcode: string) {
     this.currentConditions.update(conditions => {
-      for (let i in conditions) {
-        if (conditions[i].zip == zipcode)
-          conditions.splice(+i, 1);
+      const removedIndex: number = conditions.findIndex((condition) => condition.zip === zipcode);
+
+      if(~removedIndex) {
+        conditions.splice(removedIndex, 1);
       }
+
       return conditions;
     })
   }
