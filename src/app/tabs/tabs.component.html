@@ -1,0 +1,27 @@
+<ul class="tabs-panel">
+  <li
+    *ngFor="let tab of tabs; let i = index"
+    (click)="selectTab(tab)"
+    class="tabs-panel__button"
+    [class.tabs-panel__button--active]="tab.active"
+  >
+    <span class="tabs-panel__button-title">
+      <ng-container *ngIf="!tab.tabTitleTemplate">
+        {{ tab.tabTitle }}
+      </ng-container>
+
+      <ng-container *ngIf="!tab.title && tab.tabTitleTemplate">
+        <ng-container *ngTemplateOutlet="tab.tabTitleTemplate"></ng-container>
+      </ng-container>
+    </span>
+   
+    <span
+      class="tabs-panel__button-close"
+      (click)="close(i, $event)"
+    >
+      &times;
+    </span>
+  </li>  
+</ul>
+
+<ng-content></ng-content>

@@ -1,0 +1,35 @@
+.tabs-panel {
+  list-style: none;
+  overflow-x: auto;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 5px;
+}
+
+.tabs-panel__button {
+  color: white;
+  background-color: #337ab7;
+  border-color: #2e6da4;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 1;
+}
+
+.tabs-panel__button:hover {
+  background-color: #2e6da4;
+}
+
+.tabs-panel__button--active {
+  background-color: #1b4161 !important;
+}
+
+.tabs-panel__button-close {
+  padding: 10px;
+}
+
+.tabs-panel__button-title {
+  padding: 10px;
+}

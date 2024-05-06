@@ -1,4 +1,4 @@
-import {Component, inject, OnDestroy, Signal} from '@angular/core';
+import {Component, inject, OnDestroy, Signal, ViewChild} from '@angular/core';
 import {WeatherService} from "../weather.service";
 import {LocationService} from "../location.service";
 import {Router} from "@angular/router";
@@ -14,7 +14,6 @@ import { CurrentConditions } from './current-conditions.type';
   styleUrls: ['./current-conditions.component.css']
 })
 export class CurrentConditionsComponent implements OnDestroy {
-
   private _destroy$$: Subject<void> = new Subject<void>();
   private weatherService = inject(WeatherService);
   private router = inject(Router);
