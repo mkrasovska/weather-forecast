@@ -16,12 +16,14 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { TabComponent } from './tab/tab.component';
 import { TabsComponent } from './tabs/tabs.component';
+import { CacheSettingsComponent } from './cache-settings/cache-settings.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ZipcodeEntryComponent,
     ForecastsListComponent,
+    CacheSettingsComponent,
     CurrentConditionsComponent,
     MainPageComponent,
     TabComponent,

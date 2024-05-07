@@ -1,0 +1,8 @@
+<div class="well">
+  <h2>Set caching time in minutes (currently {{ currentCacheLifeTime() }} minutes)</h2>
+  <input type="text" #time placeholder="Caching time" class="form-control">
+  <br>
+  <button class="btn btn-primary" (click)="setCachingTime(time.value)" >
+    Set caching time
+  </button>
+</div>
